@@ -1,7 +1,7 @@
 package com.example.currencyconversionservice;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +15,8 @@ import java.util.HashMap;
 public class CurrencyConversionController {
 
     private final CurrencyExchangeProxy proxy;
+    private final Logger logger =
+            LoggerFactory.getLogger(CurrencyConversionController.class);
 
     public CurrencyConversionController(CurrencyExchangeProxy proxy) {
         this.proxy = proxy;
@@ -26,6 +28,8 @@ public class CurrencyConversionController {
             @PathVariable String to,
             @PathVariable BigDecimal quantity
     ) {
+
+        logger.info("calculateCurrencyConversion called with {} to {} with {}", from, to, quantity);
 
         HashMap<String, String> uriVariables = new HashMap<>();
         uriVariables.put("from", from);
@@ -45,6 +49,9 @@ public class CurrencyConversionController {
             @PathVariable String to,
             @PathVariable BigDecimal quantity
     ) {
+
+        logger.info("calculateCurrencyConversionFeign called with {} to {} with {}", from, to, quantity);
+
         CurrencyConversion currencyConversion = proxy.retrieveExchangeValue(from, to);
 
         return new CurrencyConversion(currencyConversion.getId(), from, to, quantity, currencyConversion.getConversionMultiple(), quantity.multiply(currencyConversion.getConversionMultiple()), currencyConversion.getEnvironment() + " feign");
